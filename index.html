@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小宇客服专属智能回复</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #4096ff;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .chat-messages {
+            height: 500px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            display: flex;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .user-message {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .robot-message {
+            align-self: flex-start;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 10px;
+        }
+        .message-content {
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.5;
+        }
+        .user-content {
+            background: #4096ff;
+            color: #fff;
+            border-top-right-radius: 4px;
+        }
+        .robot-content {
+            background: #f1f1f1;
+            color: #333;
+            border-top-left-radius: 4px;
+        }
+        .chat-input {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+        #image-upload {
+            display: none;
+        }
+        .upload-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .upload-btn:hover {
+            background: #e5e5e5;
+        }
+        .upload-icon {
+            width: 20px;
+            height: 20px;
+            fill: #666;
+        }
+        #user-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        #user-input:focus {
+            border-color: #4096ff;
+        }
+        #send-btn {
+            margin-left: 10px;
+            padding: 0 20px;
+            background: #4096ff;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        #send-btn:hover {
+            background: #3086e0;
+        }
+        .typing {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        .robot-name {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        /* 图片消息样式 */
+        .message-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 12px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-bottom: 8px;
+        }
+        .message-image:hover {
+            transform: scale(1.05);
+        }
+        /* 图片预览弹窗 */
+        .image-preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .preview-image {
+            max-width: 90%;
+            max-height: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">小宇客服专属智能回复</div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="message robot-message">
+                <img src="https://tuchuang.org.cn/imgs/2025/11/15/8626d5f5312b088f.jpg" class="avatar" alt="小宇客服专属智能回复头像">
+                <div>
+                    <div class="robot-name">小宇客服专属智能回复</div>
+                    <div class="message-content robot-content">你好！我是小宇客服专属智能回复，有什么可以帮到你的吗？支持发送图片咨询哦~</div>
+                </div>
+            </div>
+        </div>
+        <div class="chat-input">
+            <!-- 图片上传按钮 -->
+            <label for="image-upload" class="upload-btn">
+                <svg class="upload-icon" viewBox="0 0 24 24">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                </svg>
+            </label>
+            <input type="file" id="image-upload" accept="image/*">
+            <input type="text" id="user-input" placeholder="请输入你的问题...">
+            <button id="send-btn">发送</button>
+        </div>
+    </div>
+    <!-- 图片预览弹窗 -->
+    <div class="image-preview-modal" id="image-preview-modal">
+        <img src="" class="preview-image" id="preview-image">
+    </div>
+
+    <script>
+        // 回复规则库（包含指定关键词回复和基础回复）
+        const replyRules = [
+            // 指定关键词回复
+            { 
+                keyword: /魏子轩/, 
+                reply: '<img src="https://tuchuang.org.cn/imgs/2025/11/15/6d65798b140e7964.png" class="message-image" alt="魏子轩相关图片" onclick="previewImageFunc(\'https://tuchuang.org.cn/imgs/2025/11/15/6d65798b140e7964.png\')">这就是魏子轩是个嘉豪' 
+            },
+            { 
+                keyword: /魏义宇/, 
+                reply: '<img src="https://tuchuang.org.cn/imgs/2025/11/15/4d962c7fedcf311e.jpg" class="message-image" alt="魏义宇相关图片" onclick="previewImageFunc(\'https://tuchuang.org.cn/imgs/2025/11/15/4d962c7fedcf311e.jpg\')">' 
+            },
+            { keyword: /吕博宇/, reply: '吕博宇最帅' },
+            
+            // 基础回复（通用咨询、问候等）
+            { keyword: /你好|您好|嗨|哈喽/, reply: '你好呀！很高兴为你服务~ 有什么可以帮到你的？' },
+            { keyword: /再见|拜拜|告辞/, reply: '感谢你的咨询，再见啦！有问题随时欢迎再来~' },
+            { keyword: /谢谢|多谢|感谢/, reply: '不客气呀！能帮到你我也很开心~' },
+            { keyword: /在吗|在不在/, reply: '在呢在呢！我一直都在哦~ 有什么需求尽管说' },
+            { keyword: /你是谁|介绍一下/, reply: '我是小宇客服专属智能回复，专门为你解答各类问题，还能响应特定关键词哦~' },
+            { keyword: /什么功能|能做什么/, reply: '我可以回复特定关键词相关内容，接收图片咨询，解答基础问题，有需要可以随时告诉我~' },
+            { keyword: /帮助|指导/, reply: '你可以直接输入问题咨询，也可以提到特定人名获取相关回复，支持发送图片哦~' },
+            { keyword: /图片|照片/, reply: '已收到你发送的图片啦！如果有具体问题可以补充说明，我会为你解答~' },
+            { keyword: /时间|现在几点/, reply: '当前时间请查看你的设备哦~ 我会一直在这里为你服务' },
+            { keyword: /天气/, reply: '天气情况建议查看手机天气APP或气象网站，获取实时准确的预报信息~' },
+            { keyword: /加油|鼓励/, reply: '加油呀！相信你一定可以的~ 有任何需要我都在' },
+            { keyword: /开心|快乐/, reply: '看到你开心我也很快乐呀！愿你每天都有好心情~' }
+        ];
+
+        // DOM元素
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreviewModal = document.getElementById('image-preview-modal');
+        const previewImage = document.getElementById('preview-image');
+
+        // 发送消息函数（支持文字和图片，适配HTML格式回复）
+        function sendMessage(content, isUser = false, isImage = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'robot-message'}`;
+            
+            const avatarSrc = isUser 
+                ? 'https://tuchuang.org.cn/imgs/2025/11/15/631943ebb09120b0.jpg' 
+                : 'https://tuchuang.org.cn/imgs/2025/11/15/8626d5f5312b088f.jpg';
+            
+            if (isUser) {
+                if (isImage) {
+                    // 用户图片消息
+                    messageDiv.innerHTML = `
+                        <img src="${avatarSrc}" class="avatar" alt="用户头像">
+                        <div class="message-content user-content" style="padding: 8px;">
+                            <img src="${content}" class="message-image" alt="用户发送的图片" onclick="previewImageFunc('${content}')">
+                        </div>
+                    `;
+                } else {
+                    // 用户文字消息
+                    messageDiv.innerHTML = `
+                        <img src="${avatarSrc}" class="avatar" alt="用户头像">
+                        <div class="message-content user-content">${content}</div>
+                    `;
+                }
+            } else {
+                // 客服消息（支持HTML格式，如图片+文字）
+                messageDiv.innerHTML = `
+                    <img src="${avatarSrc}" class="avatar" alt="小宇客服专属智能回复头像">
+                    <div>
+                        <div class="robot-name">小宇客服专属智能回复</div>
+                        <div class="message-content robot-content">${content}</div>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 图片预览功能
+        function previewImageFunc(src) {
+            previewImage.src = src;
+            imagePreviewModal.style.display = 'flex';
+        }
+
+        // 关闭图片预览
+        imagePreviewModal.addEventListener('click', () => {
+            imagePreviewModal.style.display = 'none';
+        });
+
+        // 获取客服回复（支持HTML格式）
+        function getRobotReply(userText) {
+            for (const rule of replyRules) {
+                if (rule.keyword.test(userText)) {
+                    return rule.reply;
+                }
+            }
+            return '已收到你的消息，我会尽快为你回复~ 如果你有特定问题或想提到某个人名，都可以告诉我哦！';
+        }
+
+        // 处理文字发送
+        function handleSend() {
+            const userText = userInput.value.trim();
+            if (!userText) return;
+
+            sendMessage(userText, true);
+            userInput.value = '';
+
+            // 客服回复
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                const reply = getRobotReply(userText);
+                sendMessage(reply, false);
+            }, 1000);
+        }
+
+        // 处理图片上传
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // 转为base64展示
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imageUrl = event.target.result;
+                // 发送图片消息
+                sendMessage(imageUrl, true, true);
+                // 清空文件输入
+                imageUpload.value = '';
+
+                // 客服回复图片消息
+                showTyping();
+                setTimeout(() => {
+                    hideTyping();
+                    sendMessage('已收到你发送的图片，我会尽快为你处理~ 有具体问题可以补充说明哦！', false);
+                }, 1000);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 显示正在输入
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message robot-message typing';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <img src="https://tuchuang.org.cn/imgs/2025/11/15/8626d5f5312b088f.jpg" class="avatar" alt="小宇客服专属智能回复头像">
+                <div>
+                    <div class="robot-name">小宇客服专属智能回复</div>
+                    <div class="message-content robot-content">
+                        <div class="typing">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 隐藏正在输入
+        function hideTyping() {
+            const typingDiv = document.getElementById('typing-indicator');
+            if (typingDiv) chatMessages.removeChild(typingDiv);
+        }
+
+        // 绑定事件
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+        imageUpload.addEventListener('change', handleImageUpload);
+    </script>
+</body>
+</html>
