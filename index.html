@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小超-三角洲专业护航</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://img.piouscloud.com/i/2025/11/30/692b1c43435e7.jpg" rel="icon" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00A8E8', // 战术蓝
+                        secondary: '#121826', // 深黑
+                        tertiary: '#1E293B', // 中灰
+                        accent: '#FF4500', // 警戒橙
+                        success: '#34D399', // 任务绿
+                        neutral: '#94A3B8', // 辅助文字
+                        avatar: '#22C55E', // 头像底色
+                        reward: '#FBBF24', // 打赏黄色
+                        wechat: '#07C160', // 微信绿
+                        gold: '#FBBF24', // 高端套餐色：金
+                        silver: '#94A3B8', // 中端套餐色：银
+                        bronze: '#CD7F32', // 入门套餐色：铜
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Roboto', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in': 'fadeIn 1s ease-out forwards',
+                        'bounce-light': 'bounce 2s infinite',
+                        'spin-slow': 'spin 10s linear infinite',
+                        'fade-up': 'fadeUp 0.3s ease-out forwards',
+                        'blink': 'blink 1.5s infinite',
+                        'reward-pulse': 'rewardPulse 2s infinite',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        spin: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        },
+                        fadeUp: {
+                            '0%': { opacity: 0, transform: 'translateY(15px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        blink: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.6 },
+                        },
+                        rewardPulse: {
+                            '0%': { boxShadow: '0 0 0 0 rgba(251, 187, 36, 0.4)' },
+                            '70%': { boxShadow: '0 0 0 8px rgba(251, 187, 36, 0)' },
+                            '100%': { boxShadow: '0 0 0 0 rgba(251, 187, 36, 0)' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: 0 },
+                            '100%': { transform: 'translateY(0)', opacity: 1 },
+                        }
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 8px rgba(0, 168, 232, 0.3);
+            }
+            .bg-glass {
+                background: rgba(30, 41, 59, 0.8);
+                backdrop-filter: blur(8px);
+            }
+            .stat-card {
+                background: rgba(30, 41, 59, 0.9);
+                border: 1px solid rgba(0, 168, 232, 0.2);
+                transition: all 0.3s ease;
+            }
+            .stat-card:hover {
+                transform: translateY(-5px);
+                border-color: rgba(0, 168, 232, 0.5);
+                box-shadow: 0 10px 25px rgba(0, 168, 232, 0.1);
+            }
+            .cta-button {
+                background: linear-gradient(135deg, #00A8E8 0%, #0077B6 100%);
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            .cta-button:hover {
+                transform: scale(1.05);
+                box-shadow: 0 15px 30px rgba(0, 168, 232, 0.2);
+            }
+            .option-btn {
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            .option-btn:hover {
+                background: rgba(0, 168, 232, 0.1);
+                transform: translateX(5px);
+            }
+            .option-btn.reward {
+                border-color: rgba(251, 187, 36, 0.5);
+                background: rgba(251, 187, 36, 0.05);
+                animation: rewardPulse 2s infinite;
+            }
+            .option-btn.reward:hover {
+                background: rgba(251, 187, 36, 0.1);
+                border-color: rgba(251, 187, 36, 0.8);
+            }
+            .modal-backdrop {
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(2px);
+            }
+            .reward-modal {
+                border-color: rgba(251, 187, 36, 0.3);
+                box-shadow: 0 0 20px rgba(251, 187, 36, 0.1);
+            }
+            .wechat-qrcode {
+                border: 4px solid rgba(7, 193, 96, 0.5);
+                border-radius: 8px;
+                width: 240px;
+                height: 240px;
+                box-shadow: 0 0 15px rgba(7, 193, 96, 0.3);
+            }
+            .back-btn {
+                background: #FBBF24;
+                color: #121826;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 16px;
+                font-size: 16px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.2s ease;
+                z-index: 10;
+                box-shadow: 0 2px 8px rgba(251, 187, 36, 0.3);
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            .back-btn:hover {
+                background: #F59E0B;
+                transform: translateY(-50%) scale(1.05);
+                box-shadow: 0 4px 12px rgba(251, 187, 36, 0.4);
+            }
+            .title-container {
+                position: relative;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 16px;
+            }
+            .modal-title {
+                font-size: 19px;
+                font-weight: 600;
+                color: white;
+                margin: 0;
+                padding: 0 40px;
+                text-align: center;
+            }
+            .reward-title {
+                color: #FBBF24;
+                text-shadow: 0 0 8px rgba(251, 187, 36, 0.2);
+            }
+            /* 套餐相关样式 */
+            .package-card {
+                transition: all 0.3s ease;
+            }
+            .package-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 168, 232, 0.15);
+            }
+            .package-badge {
+                position: absolute;
+                top: -10px;
+                right: 20px;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            .btn-contact {
+                background: linear-gradient(135deg, #00A8E8 0%, #0077B6 100%);
+                color: white;
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            .btn-contact:hover {
+                background: linear-gradient(135deg, #0099DD 0%, #0066AA 100%);
+                transform: scale(1.03);
+                box-shadow: 0 4px 12px rgba(0, 168, 232, 0.2);
+            }
+            .feature-icon {
+                width: 18px;
+                height: 18px;
+                margin-right: 8px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-secondary text-white font-sans antialiased overflow-x-hidden">
+    <!-- 主页内容 -->
+    <div id="homePage" class="block">
+        <!-- 顶部头像+昵称区 -->
+        <header class="relative py-6 px-4 bg-tertiary/80 border-b border-primary/20">
+            <div class="container mx-auto flex flex-col items-center">
+                <div class="flex items-center gap-3 mb-4 animate-fade-in">
+                    <div class="w-16 h-16 rounded-full overflow-hidden border-3 border-avatar/50 shadow-lg shadow-avatar/20 animate-spin-slow">
+                        <img src="https://img.piouscloud.com/i/2025/11/30/692b1c43435e7.jpg" alt="小超头像" class="w-full h-full object-cover">
+                    </div>
+                    <h1 class="text-xl md:text-2xl font-bold">小超</h1>
+                </div>
+                <div class="text-center mb-4 animate-fade-in" style="animation-delay: 0.2s;">
+                    <h2 class="text-2xl md:text-3xl font-bold mb-1">三角洲</h2>
+                    <h3 class="text-lg md:text-xl font-bold text-primary">专业护航，轻松躺赢</h3>
+                </div>
+            </div>
+        </header>
+
+        <!-- 问题痛点区 -->
+        <section class="py-8 px-4 bg-secondary">
+            <div class="container mx-auto max-w-md text-center text-neutral animate-fade-in" style="animation-delay: 0.4s;">
+                <p class="mb-2 text-sm md:text-base">你还在因为撤离失败而烦恼吗？</p>
+                <p class="mb-2 text-sm md:text-base">你还在因为技术太菜仓库空吗？</p>
+                <p class="mt-3 leading-relaxed text-sm md:text-base">
+                    这些都让三角洲专业护航小超为你解决！全网顶尖护航，24小时在线带飞！<br>
+                    保底带出千万哈夫币、红装武器、稀有道具，零风险撤离，新手也能快速成型。
+                </p>
+            </div>
+        </section>
+
+        <!-- 数据统计区 -->
+        <section class="py-10 px-4 bg-tertiary/80">
+            <div class="container mx-auto grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+                <div class="stat-card rounded-xl p-4 text-center animate-fade-in" style="animation-delay: 0.6s;">
+                    <div class="text-2xl md:text-3xl font-bold text-primary mb-1">99%</div>
+                    <p class="text-neutral text-xs md:text-sm">安全撤离率</p>
+                </div>
+                <div class="stat-card rounded-xl p-4 text-center animate-fade-in" style="animation-delay: 0.8s;">
+                    <div class="text-2xl md:text-3xl font-bold text-primary mb-1">99%</div>
+                    <p class="text-neutral text-xs md:text-sm">客户满意度</p>
+                </div>
+                <div class="stat-card rounded-xl p-4 text-center animate-fade-in" style="animation-delay: 1s;">
+                    <div class="text-2xl md:text-3xl font-bold text-primary mb-1">1,286</div>
+                    <p class="text-neutral text-xs md:text-sm">累计护航次数</p>
+                </div>
+                <div class="stat-card rounded-xl p-4 text-center animate-fade-in" style="animation-delay: 1.2s;">
+                    <div class="text-2xl md:text-3xl font-bold text-primary mb-1">999+</div>
+                    <p class="text-neutral text-xs md:text-sm">大红产出数量</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 前往了解区 -->
+        <section class="py-16 px-4 bg-secondary flex flex-col items-center justify-center gap-6">
+            <div class="animate-fade-in" style="animation-delay: 1.4s;">
+                <div id="ctaButton" class="cta-button rounded-3xl px-10 py-5 inline-block text-center shadow-xl shadow-primary/20 animate-bounce-light w-full max-w-xs">
+                    <h2 class="text-3xl md:text-5xl font-bold">前往了解</h2>
+                </div>
+            </div>
+            <div class="text-success text-base md:text-xl flex items-center gap-2 animate-fade-in" style="animation-delay: 1.6s;">
+                <i class="fa fa-check-circle"></i>
+                <span>24小时在线 随时护航</span>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="bg-tertiary py-6 px-4 border-t border-primary/20">
+            <div class="container mx-auto text-center text-neutral text-xs">
+                <p>2025 本主页由小宇开发 | 小超-三角洲专业护航 | 全程安全保障 | 理性消费 快乐游戏</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 套餐详情页内容 -->
+    <div id="packagePage" class="hidden">
+        <!-- 顶部导航栏 -->
+        <header class="fixed top-0 left-0 right-0 bg-tertiary/90 backdrop-blur-md border-b border-primary/30 z-50">
+            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+                <button id="backToHome" class="flex items-center gap-2 text-white">
+                    <i class="fa fa-arrow-left text-lg"></i>
+                    <span class="font-bold text-base">返回</span>
+                </button>
+                <h1 class="font-bold text-lg md:text-xl text-primary">护航套餐详情</h1>
+                <div class="w-8"></div>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="container mx-auto px-4 pt-20 pb-16">
+            <!-- 页面标题 -->
+            <div class="text-center mb-10 animate-fade-in">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">专业护航，轻松上分</h2>
+                <p class="text-neutral text-sm md:text-base max-w-md mx-auto">
+                    8种套餐覆盖不同需求，从新手入门到高端定制，全程专业玩家带队，安全高效
+                </p>
+            </div>
+
+            <!-- 套餐筛选栏 -->
+            <div class="flex gap-3 mb-8 overflow-x-auto pb-2 scrollbar-hide animate-slide-up" style="animation-delay: 0.1s;">
+                <button class="px-4 py-2 bg-primary rounded-full text-sm font-medium whitespace-nowrap">全部套餐</button>
+                <button class="px-4 py-2 bg-tertiary rounded-full text-sm font-medium text-neutral hover:bg-tertiary/80 whitespace-nowrap">入门级</button>
+                <button class="px-4 py-2 bg-tertiary rounded-full text-sm font-medium text-neutral hover:bg-tertiary/80 whitespace-nowrap">进阶级</button>
+                <button class="px-4 py-2 bg-tertiary rounded-full text-sm font-medium text-neutral hover:bg-tertiary/80 whitespace-nowrap">高端级</button>
+                <button class="px-4 py-2 bg-tertiary rounded-full text-sm font-medium text-neutral hover:bg-tertiary/80 whitespace-nowrap">定制级</button>
+            </div>
+
+            <!-- 套餐列表 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 套餐1：青铜护航（50元） -->
+                <div class="package-card bg-tertiary rounded-2xl p-5 relative border border-bronze/30 animate-slide-up" style="animation-delay: 0.2s;">
+                    <div class="package-badge bg-bronze/20 text-bronze">入门级</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-bronze">青铜护航</h3>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold">¥50</span>
+                            <span class="text-neutral text-xs">/1小时</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 mb-6 text-sm">
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-bronze"></i>
+                            <span>1名专业玩家带队</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-bronze"></i>
+                            <span>基础战术指导</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-bronze"></i>
+                            <span>安全上分（≤20分）</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-bronze"></i>
+                            <span>实时语音沟通</span>
+                        </li>
+                        <li class="flex items-center text-neutral/70">
+                            <i class="fa fa-times feature-icon"></i>
+                            <span>无专属客服</span>
+                        </li>
+                    </ul>
+                    <button class="btn-contact w-full py-3 rounded-xl font-medium" onclick="contactQQ()">立即联系小超</button>
+                </div>
+
+                <!-- 套餐2：白银护航（100元） -->
+                <div class="package-card bg-tertiary rounded-2xl p-5 relative border border-silver/30 animate-slide-up" style="animation-delay: 0.3s;">
+                    <div class="package-badge bg-silver/20 text-silver">进阶级</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-silver">白银护航</h3>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold">¥100</span>
+                            <span class="text-neutral text-xs">/2小时</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 mb-6 text-sm">
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-silver"></i>
+                            <span>1名资深玩家带队</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-silver"></i>
+                            <span>详细战术分析</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-silver"></i>
+                            <span>高效上分（≤50分）</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-silver"></i>
+                            <span>实时语音+战绩复盘</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-silver"></i>
+                            <span>基础客服支持</span>
+                        </li>
+                    </ul>
+                    <button class="btn-contact w-full py-3 rounded-xl font-medium" onclick="contactQQ()">立即联系小超</button>
+                </div>
+
+                <!-- 套餐3：黄金护航（180元） -->
+                <div class="package-card bg-tertiary rounded-2xl p-5 relative border border-gold/30 animate-slide-up" style="animation-delay: 0.4s;">
+                    <div class="package-badge bg-gold/20 text-gold">热门推荐</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-gold">黄金护航</h3>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold">¥180</span>
+                            <span class="text-neutral text-xs">/4小时</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 mb-6 text-sm">
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>1名王牌玩家带队</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>专属战术指导</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>快速上分（≤100分）</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>实时语音+战绩复盘</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>专属客服1对1</span>
+                        </li>
+                    </ul>
+                    <button class="btn-contact w-full py-3 rounded-xl font-medium" onclick="contactQQ()">立即联系小超</button>
+                </div>
+
+                <!-- 套餐4：铂金护航（280元） -->
+                <div class="package-card bg-tertiary rounded-2xl p-5 relative border border-primary/30 animate-slide-up" style="animation-delay: 0.5s;">
+                    <div class="package-badge bg-primary/20 text-primary">高端级</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-primary">铂金护航</h3>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold">¥280</span>
+                            <span class="text-neutral text-xs">/6小时</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 mb-6 text-sm">
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>2名王牌玩家组队护航</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>定制战术方案</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>极速上分（≤180分）</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>全程语音+多轮复盘</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>专属客服+订单跟踪</span>
+                        </li>
+                    </ul>
+                    <button class="btn-contact w-full py-3 rounded-xl font-medium" onclick="contactQQ()">立即联系小超</button>
+                </div>
+
+                <!-- 套餐5：钻石护航（400元） -->
+                <div class="package-card bg-tertiary rounded-2xl p-5 relative border border-primary/50 animate-slide-up" style="animation-delay: 0.6s;">
+                    <div class="package-badge bg-primary/30 text-primary">高端级</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-primary">钻石护航</h3>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold">¥400</span>
+                            <span class="text-neutral text-xs">/8小时</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 mb-6 text-sm">
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>2名战神玩家组队护航</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>高级战术定制</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>超极速上分（≤250分）</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>全程语音+专业复盘报告</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-primary"></i>
+                            <span>专属客服+优先派单</span>
+                        </li>
+                    </ul>
+                    <button class="btn-contact w-full py-3 rounded-xl font-medium" onclick="contactQQ()">立即联系小超</button>
+                </div>
+
+                <!-- 套餐6：星耀护航（600元） -->
+                <div class="package-card bg-tertiary rounded-2xl p-5 relative border border-accent/30 animate-slide-up" style="animation-delay: 0.7s;">
+                    <div class="package-badge bg-accent/20 text-accent">定制级</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-accent">星耀护航</h3>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold">¥600</span>
+                            <span class="text-neutral text-xs">/12小时</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 mb-6 text-sm">
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>3名战神玩家组队护航</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>顶级战术定制+教学</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>冲榜级上分（≤400分）</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>全程语音+多维度复盘</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>专属客服+VIP通道</span>
+                        </li>
+                    </ul>
+                    <button class="btn-contact w-full py-3 rounded-xl font-medium" onclick="contactQQ()">立即联系小超</button>
+                </div>
+
+                <!-- 套餐7：王者护航（800元） -->
+                <div class="package-card bg-tertiary rounded-2xl p-5 relative border border-gold/50 animate-slide-up" style="animation-delay: 0.8s;">
+                    <div class="package-badge bg-gold/30 text-gold">定制级</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-gold">王者护航</h3>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold">¥800</span>
+                            <span class="text-neutral text-xs">/16小时</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 mb-6 text-sm">
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>3名顶尖战神组队护航</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>一对一教学+战术定制</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>王者冲榜（≤600分）</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>全程语音+专业教学视频</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-gold"></i>
+                            <span>专属客服+优先派单+售后保障</span>
+                        </li>
+                    </ul>
+                    <button class="btn-contact w-full py-3 rounded-xl font-medium" onclick="contactQQ()">立即联系小超</button>
+                </div>
+
+                <!-- 套餐8：荣耀护航（1000元） -->
+                <div class="package-card bg-tertiary rounded-2xl p-5 relative border border-accent/50 animate-slide-up" style="animation-delay: 0.9s;">
+                    <div class="package-badge bg-accent/30 text-white bg-accent">顶级定制</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-accent">荣耀护航</h3>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold">¥1000</span>
+                            <span class="text-neutral text-xs">/24小时</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 mb-6 text-sm">
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>4名顶级战神组队护航</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>私人定制教学+战术体系</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>全服冲榜（无上限）</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>24小时专属语音+定制复盘</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-check feature-icon text-accent"></i>
+                            <span>专属客服+VIP特权+终身售后</span>
+                        </li>
+                    </ul>
+                    <button class="btn-contact w-full py-3 rounded-xl font-medium" onclick="contactQQ()">立即联系小超</button>
+                </div>
+            </div>
+
+            <!-- 服务保障区 -->
+            <div class="mt-12 bg-tertiary/50 rounded-2xl p-5 animate-fade-in" style="animation-delay: 1s;">
+                <h3 class="text-lg font-bold mb-4 text-primary">服务保障</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div class="flex flex-col items-center text-center">
+                        <i class="fa fa-shield text-xl text-success mb-2"></i>
+                        <span>安全护航</span>
+                        <span class="text-neutral text-xs">无作弊风险</span>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <i class="fa fa-bolt text-xl text-success mb-2"></i>
+                        <span>极速响应</span>
+                        <span class="text-neutral text-xs">15分钟内派单</span>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <i class="fa fa-refresh text-xl text-success mb-2"></i>
+                        <span>不满意退款</span>
+                        <span class="text-neutral text-xs">2小时内可退</span>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <i class="fa fa-headphones text-xl text-success mb-2"></i>
+                        <span>24小时客服</span>
+                        <span class="text-neutral text-xs">随时咨询</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航 -->
+        <footer class="fixed bottom-0 left-0 right-0 bg-tertiary border-t border-primary/30 py-3 px-6 z-40">
+            <div class="flex justify-around items-center">
+                <button id="footerHomeBtn" class="flex flex-col items-center text-primary">
+                    <i class="fa fa-home text-lg"></i>
+                    <span class="text-xs mt-1">首页</span>
+                </button>
+                <a href="#" class="flex flex-col items-center text-white">
+                    <i class="fa fa-gamepad text-lg"></i>
+                    <span class="text-xs mt-1">护航</span>
+                </a>
+                <a href="#" class="flex flex-col items-center text-white">
+                    <i class="fa fa-user text-lg"></i>
+                    <span class="text-xs mt-1">我的</span>
+                </a>
+                <a href="#" class="flex flex-col items-center text-white">
+                    <i class="fa fa-question-circle text-lg"></i>
+                    <span class="text-xs mt-1">帮助</span>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 弹出选项层 -->
+    <div id="optionModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden p-4">
+        <div class="bg-tertiary rounded-2xl p-6 w-full max-w-md animate-fade-up border border-primary/30 shadow-2xl shadow-primary/10">
+            <h3 class="text-xl font-bold text-center mb-6 modal-title">选择服务类型</h3>
+            <div class="flex flex-col gap-4">
+                <div id="packageOption" class="option-btn flex items-center gap-3 p-4 rounded-xl border border-gray-700">
+                    <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                        <i class="fa fa-list-alt text-primary text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-base font-bold">护航套餐</h4>
+                        <p class="text-neutral text-xs">入门/进阶/豪华套餐详情</p>
+                    </div>
+                </div>
+                <div id="contactOption" class="option-btn flex items-center gap-3 p-4 rounded-xl border border-gray-700">
+                    <div class="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center">
+                        <i class="fa fa-comments text-success text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-base font-bold">联系小超</h4>
+                        <p class="text-neutral text-xs">一对一咨询护航事宜</p>
+                    </div>
+                </div>
+                <div id="aiServiceOption" class="option-btn flex items-center gap-3 p-4 rounded-xl border border-gray-700">
+                    <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                        <i class="fa fa-android text-accent text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-base font-bold">小超智能客服</h4>
+                        <p class="text-neutral text-xs">24小时自动答疑解惑</p>
+                    </div>
+                </div>
+                <div id="rewardOption" class="option-btn reward flex items-center gap-3 p-4 rounded-xl border border-reward/50 bg-reward/5">
+                    <div class="w-12 h-12 rounded-full bg-reward/20 flex items-center justify-center">
+                        <i class="fa fa-heart text-reward text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-base font-bold text-reward">打赏小超</h4>
+                        <p class="text-neutral text-xs">支持优质护航服务</p>
+                    </div>
+                </div>
+                <div id="moreOption" class="option-btn flex items-center gap-3 p-4 rounded-xl border border-gray-700">
+                    <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                        <i class="fa fa-ellipsis-h text-primary text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-base font-bold">更多功能</h4>
+                        <p class="text-neutral text-xs">战绩查询/专属活动等</p>
+                    </div>
+                </div>
+            </div>
+            <button id="closeModal" class="mt-6 w-full py-3 border border-gray-700 rounded-xl text-neutral hover:text-white hover:border-gray-500 transition-colors">
+                取消
+            </button>
+        </div>
+    </div>
+
+    <!-- 微信支付弹窗 -->
+    <div id="wechatPayModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden p-4">
+        <div class="bg-tertiary rounded-2xl p-6 w-full max-w-md animate-fade-up reward-modal border border-reward/30 shadow-2xl shadow-reward/10">
+            <div class="title-container">
+                <button id="backToRewardOption" class="back-btn">
+                    <i class="fa fa-arrow-left"></i>
+                    <span>返回</span>
+                </button>
+                <h3 class="modal-title reward-title">微信打赏小超</h3>
+            </div>
+            <div class="text-center py-4">
+                <p class="text-lg mb-3">感谢支持小超的优质服务～</p>
+                <p class="text-neutral text-sm mb-8">微信扫码即可完成打赏</p>
+                <div class="flex justify-center">
+                    <img src="https://img.piouscloud.com/i/2025/11/30/692b273ec9d8a.png" alt="微信收款码" class="wechat-qrcode">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 交互脚本 -->
+    <script>
+        // 全局元素
+        const homePage = document.getElementById('homePage');
+        const packagePage = document.getElementById('packagePage');
+        const ctaButton = document.getElementById('ctaButton');
+        const optionModal = document.getElementById('optionModal');
+        const wechatPayModal = document.getElementById('wechatPayModal');
+        const closeModal = document.getElementById('closeModal');
+        const backToRewardOption = document.getElementById('backToRewardOption');
+        const packageOption = document.getElementById('packageOption');
+        const contactOption = document.getElementById('contactOption');
+        const aiServiceOption = document.getElementById('aiServiceOption');
+        const rewardOption = document.getElementById('rewardOption');
+        const moreOption = document.getElementById('moreOption');
+        const backToHome = document.getElementById('backToHome');
+        const footerHomeBtn = document.getElementById('footerHomeBtn');
+
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
+                el.style.animationDelay = `${0.2 * index}s`;
+            });
+
+            // 打开主选项弹窗
+            ctaButton.addEventListener('click', function() {
+                optionModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+
+            // 关闭弹窗通用函数
+            function hideAllModals() {
+                optionModal.classList.add('hidden');
+                wechatPayModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            // 关闭按钮事件
+            closeModal.addEventListener('click', hideAllModals);
+
+            // 支付页面返回按钮
+            backToRewardOption.addEventListener('click', function() {
+                wechatPayModal.classList.add('hidden');
+                optionModal.classList.remove('hidden');
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+
+            // 点击背景关闭弹窗
+            [optionModal, wechatPayModal].forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) hideAllModals();
+                });
+            });
+
+            // 键盘ESC关闭弹窗
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') hideAllModals();
+            });
+
+            // 跳转至套餐页面
+            packageOption.addEventListener('click', function() {
+                hideAllModals();
+                homePage.classList.add('hidden');
+                packagePage.classList.remove('hidden');
+                window.scrollTo(0, 0);
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+
+            // 联系小超：QQ跳转
+            contactOption.addEventListener('click', function() {
+                const qq = "2725692146";
+                const qqUrl = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qq}&card_type=person&source=qrcode`;
+                window.location.href = qqUrl;
+                setTimeout(() => {
+                    alert("若未自动唤起QQ，请手动添加QQ：2725692146 联系小超");
+                }, 2000);
+                hideAllModals();
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+
+            // 小超智能客服
+            aiServiceOption.addEventListener('click', function() {
+                alert('已选择【小超智能客服】，即将打开智能客服对话框！');
+                hideAllModals();
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+
+            // 打赏小超：打开支付弹窗
+            rewardOption.addEventListener('click', function() {
+                optionModal.classList.add('hidden');
+                wechatPayModal.classList.remove('hidden');
+                if (navigator.vibrate) navigator.vibrate(80);
+            });
+
+            // 更多功能
+            moreOption.addEventListener('click', function() {
+                alert('已选择【更多功能】，后续将跳转至更多功能页面！');
+                hideAllModals();
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+
+            // 套餐页面返回主页
+            backToHome.addEventListener('click', function() {
+                packagePage.classList.add('hidden');
+                homePage.classList.remove('hidden');
+                window.scrollTo(0, 0);
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+
+            // 底部导航返回主页
+            footerHomeBtn.addEventListener('click', function() {
+                packagePage.classList.add('hidden');
+                homePage.classList.remove('hidden');
+                window.scrollTo(0, 0);
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+
+            // 套餐筛选按钮点击效果
+            const filterButtons = document.querySelectorAll('.scrollbar-hide button');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterButtons.forEach(b => {
+                        b.classList.remove('bg-primary', 'text-white');
+                        b.classList.add('bg-tertiary', 'text-neutral', 'hover:bg-tertiary/80');
+                    });
+                    this.classList.remove('bg-tertiary', 'text-neutral', 'hover:bg-tertiary/80');
+                    this.classList.add('bg-primary', 'text-white');
+                });
+            });
+
+            // 手机端滚动隐藏底部导航
+            let lastScrollTop = 0;
+            const packageFooter = document.querySelector('#packagePage footer');
+            window.addEventListener('scroll', function() {
+                if (packagePage.classList.contains('hidden')) return;
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop > lastScrollTop && scrollTop > 300) {
+                    packageFooter.style.transform = 'translateY(100%)';
+                } else {
+                    packageFooter.style.transform = 'translateY(0)';
+                }
+                lastScrollTop = scrollTop;
+            });
+        });
+
+        // 联系小超函数（套餐页面按钮共用）
+        function contactQQ() {
+            const qq = "2725692146";
+            const qqUrl = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qq}&card_type=person&source=qrcode`;
+            window.location.href = qqUrl;
+            setTimeout(() => {
+                alert("若未自动唤起QQ，请手动添加QQ：2725692146 联系小超");
+            }, 2000);
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+    </script>
+</body>
+</html>
